@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+*.md
+tests
+*.test.ts
+coverage
+.nyc_output
+vitest.config.ts
+vitest.integration.config.ts

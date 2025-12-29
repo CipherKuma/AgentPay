@@ -1,0 +1,87 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.yarn/
+.pnp.*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+.turbo/
+
+# Environment files - NEVER COMMIT SECRETS
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+*.pem
+*.key
+secrets/
+
+# IDE & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-*
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+.pytest_cache/
+__pycache__/
+*.pyc
+.coverage
+htmlcov/
+
+# Move/Aptos
+contracts/build/
+contracts/.aptos/
+.aptos/
+
+# Python SDK
+sdk/dist/
+sdk/build/
+sdk/*.egg-info/
+sdk/.eggs/
+sdk/venv/
+sdk/.venv/
+sdk/.mypy_cache/
+sdk/.ruff_cache/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+drizzle/
+
+# Docker
+.docker/
+
+# Misc
+*.tgz
+*.tar.gz
+*.zip
+.cache/
+tmp/
+temp/
+
+# Local tooling
+.mcp.json
+.playwright-data/

@@ -1,0 +1,9 @@
+[package]
+name = "AgentPay"
+version = "0.1.0"
+
+[addresses]
+AgentPay = "_"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "aptos-release-v1.17" }
