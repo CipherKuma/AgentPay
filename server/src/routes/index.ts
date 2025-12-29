@@ -4,6 +4,7 @@ import imagesRouter from './images.js';
 import modelsRouter from './models.js';
 import providersRouter from './providers.js';
 import computeRouter from './compute.js';
+import usageRouter from './usage.js';
 
 const router = Router();
 
@@ -13,5 +14,6 @@ router.use('/v1', imagesRouter);
 router.use('/v1', modelsRouter);
 router.use('/v1', providersRouter);
 router.use('/v1', computeRouter);
+router.use('/v1/usage', usageRouter);
 
 export default router;

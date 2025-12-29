@@ -1,19 +1,41 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 import { config } from './config/index.js';
 import { createX402Middleware, defaultRoutes, dynamicPricingMiddleware } from './middleware/x402.js';
 import routes from './routes/index.js';
 import type { ApiError } from './types/index.js';
 import { healthChecker } from './routing/index.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   exposedHeaders: ['X-PAYMENT-RESPONSE'],
 }));
+
+// Load and serve OpenAPI spec
+try {
+  const openapiSpec = YAML.load(path.join(__dirname, '../openapi.yaml'));
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'AgentPay API Docs',
+  }));
+  app.get('/openapi.yaml', (_req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../openapi.yaml'));
+  });
+  console.log('[AgentPay] API docs available at /docs');
+} catch (err) {
+  console.warn('[AgentPay] Could not load OpenAPI spec:', err);
+}
 
 // Apply dynamic pricing middleware (calculates price based on request body)
 app.use(dynamicPricingMiddleware);

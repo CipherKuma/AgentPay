@@ -70,14 +70,22 @@ docker-compose up -d
 
 ## API Documentation
 
+Interactive API docs available at `/docs` (Swagger UI).
+
 ### Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/health` | GET | Health check |
+| `/docs` | GET | Swagger UI documentation |
 | `/v1/providers` | GET | List available providers |
 | `/v1/models` | GET | List available models |
 | `/v1/inference` | POST | Run inference (requires x402 payment) |
+| `/v1/images/generate` | POST | Generate images (requires x402 payment) |
+| `/v1/compute/run` | POST | Run GPU compute job (requires x402 payment) |
+| `/v1/compute/{id}/status` | GET | Get compute job status |
+| `/v1/usage` | GET | Get usage statistics |
+| `/v1/usage/history` | GET | Get payment history |
 
 ### Inference Request
 
@@ -176,6 +184,34 @@ export const myProvider: Provider = {
 };
 ```
 
+## Python SDK
+
+Install the Python SDK:
+
+```bash
+cd sdk
+pip install -e .
+```
+
+Usage:
+
+```python
+from agentpay import AgentPayClient, InferenceRequest, ChatMessage
+
+# With auto-payment
+client = AgentPayClient(
+    endpoint="http://localhost:4402",
+    private_key="0x...",
+    auto_pay=True,
+)
+
+response = client.inference(InferenceRequest(
+    model="gpt-4o-mini",
+    messages=[ChatMessage(role="user", content="Hello!")],
+))
+print(response.output)
+```
+
 ## Configuration
 
 ### Environment Variables
@@ -185,8 +221,15 @@ export const myProvider: Provider = {
 | `PORT` | No | Server port (default: 4402) |
 | `MOVEMENT_PAY_TO` | Yes | Wallet address for payments |
 | `MOVEMENT_FACILITATOR_URL` | No | x402 facilitator URL |
-| `OPENAI_API_KEY` | Yes | OpenAI API key |
-| `OPENAI_BASE_URL` | No | Custom OpenAI-compatible URL |
+| `MOVEMENT_RPC_URL` | No | Movement RPC URL |
+| `MOVEMENT_TREASURY_ADDRESS` | No | Treasury contract address |
+| `MOVEMENT_ADMIN_PRIVATE_KEY` | No | Admin key for treasury |
+| `DATABASE_URL` | No | PostgreSQL connection URL |
+| `OPENAI_API_KEY` | Yes* | OpenAI API key |
+| `TOGETHER_API_KEY` | No | Together AI API key |
+| `GROQ_API_KEY` | No | Groq API key |
+
+\* At least one provider API key is required.
 
 ## Deployment
 

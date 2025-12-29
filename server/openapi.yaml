@@ -1,0 +1,555 @@
+openapi: 3.0.3
+info:
+  title: AgentPay API
+  description: |
+    AgentPay is a decentralized compute marketplace where AI agents pay for
+    GPU/inference/data services via x402 micropayments on Movement.
+
+    ## Authentication
+
+    All paid endpoints require x402 payment. When you make a request without payment,
+    you'll receive a `402 Payment Required` response with pricing information.
+
+    To pay, include the `X-PAYMENT` header with a signed payment payload.
+
+    ## Pricing
+
+    Prices are returned in octas (1 MOVE = 10^8 octas). The pricing formula is:
+    `Customer pays = Provider cost + 15% margin`
+  version: 0.1.0
+  contact:
+    name: AgentPay Support
+    url: https://agentpay.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4402
+    description: Local development server
+  - url: https://api.agentpay.io
+    description: Production server
+
+tags:
+  - name: Inference
+    description: LLM text generation
+  - name: Images
+    description: Image generation
+  - name: Compute
+    description: GPU compute jobs
+  - name: Usage
+    description: Usage statistics
+  - name: Info
+    description: API information endpoints
+
+paths:
+  /health:
+    get:
+      tags: [Info]
+      summary: Health check
+      description: Check if the API server is healthy
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+                    example: "1.0.0"
+
+  /v1/models:
+    get:
+      tags: [Info]
+      summary: List available models
+      description: Get all available models with pricing information
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Model'
+
+  /v1/providers:
+    get:
+      tags: [Info]
+      summary: List providers
+      description: Get all registered providers with health status
+      responses:
+        '200':
+          description: List of providers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  providers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Provider'
+
+  /v1/inference:
+    post:
+      tags: [Inference]
+      summary: Run LLM inference
+      description: |
+        Generate text using a large language model.
+        **Pricing**: Based on token usage. Check `/v1/models` for per-model pricing.
+      parameters:
+        - $ref: '#/components/parameters/XPayment'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InferenceRequest'
+      responses:
+        '200':
+          description: Inference completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InferenceResponse'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /v1/images/generate:
+    post:
+      tags: [Images]
+      summary: Generate images
+      description: Generate images from text prompts
+      parameters:
+        - $ref: '#/components/parameters/XPayment'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageRequest'
+      responses:
+        '200':
+          description: Images generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageResponse'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+
+  /v1/compute/run:
+    post:
+      tags: [Compute]
+      summary: Start compute job
+      description: Start a GPU compute job with a Docker container
+      parameters:
+        - $ref: '#/components/parameters/XPayment'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComputeRequest'
+      responses:
+        '200':
+          description: Job started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComputeJob'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+
+  /v1/compute/{jobId}/status:
+    get:
+      tags: [Compute]
+      summary: Get job status
+      description: Check the status of a running compute job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComputeJob'
+        '404':
+          description: Job not found
+
+  /v1/compute/{jobId}/cancel:
+    post:
+      tags: [Compute]
+      summary: Cancel job
+      description: Cancel a running compute job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job cancelled
+        '404':
+          description: Job not found
+
+  /v1/usage:
+    get:
+      tags: [Usage]
+      summary: Get usage statistics
+      description: Get usage statistics and spending history
+      parameters:
+        - name: payer
+          in: query
+          schema:
+            type: string
+          description: Filter by payer wallet address
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+          description: Number of days to include
+      responses:
+        '200':
+          description: Usage statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageStats'
+
+  /v1/usage/history:
+    get:
+      tags: [Usage]
+      summary: Get payment history
+      description: Get payment history for a specific payer
+      parameters:
+        - name: payer
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: Payment history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+                  total:
+                    type: integer
+
+  /v1/usage/by-service:
+    get:
+      tags: [Usage]
+      summary: Get usage by service
+      description: Get usage breakdown by service type
+      responses:
+        '200':
+          description: Usage by service
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  services:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        service:
+                          type: string
+                        requests:
+                          type: integer
+                        totalAmount:
+                          type: string
+
+components:
+  parameters:
+    XPayment:
+      name: X-PAYMENT
+      in: header
+      description: x402 payment payload (base64 encoded)
+      schema:
+        type: string
+
+  schemas:
+    Model:
+      type: object
+      properties:
+        id:
+          type: string
+          example: gpt-4o-mini
+        provider:
+          type: string
+          example: openai
+        pricing:
+          type: object
+          properties:
+            input:
+              type: number
+            output:
+              type: number
+
+    Provider:
+      type: object
+      properties:
+        id:
+          type: string
+          example: openai
+        name:
+          type: string
+          example: OpenAI
+        models:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [available, unavailable, degraded]
+
+    ChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [system, user, assistant]
+        content:
+          type: string
+
+    InferenceRequest:
+      type: object
+      required: [model]
+      properties:
+        model:
+          type: string
+          example: gpt-4o-mini
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+        prompt:
+          type: string
+        max_tokens:
+          type: integer
+          default: 512
+        temperature:
+          type: number
+          default: 0.7
+        stream:
+          type: boolean
+          default: false
+
+    InferenceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        model:
+          type: string
+        output:
+          type: string
+        usage:
+          $ref: '#/components/schemas/Usage'
+        latency_ms:
+          type: integer
+
+    Usage:
+      type: object
+      properties:
+        prompt_tokens:
+          type: integer
+        completion_tokens:
+          type: integer
+        total_tokens:
+          type: integer
+
+    ImageRequest:
+      type: object
+      required: [prompt]
+      properties:
+        prompt:
+          type: string
+        model:
+          type: string
+          default: sdxl
+        size:
+          type: string
+          default: 1024x1024
+        n:
+          type: integer
+          default: 1
+
+    ImageResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+        latency_ms:
+          type: integer
+
+    ComputeRequest:
+      type: object
+      required: [image]
+      properties:
+        image:
+          type: string
+          example: nvidia/cuda:12.0
+        command:
+          type: array
+          items:
+            type: string
+        env:
+          type: object
+        gpu:
+          type: object
+          properties:
+            type:
+              type: string
+              example: A100
+            count:
+              type: integer
+              default: 1
+        timeout_seconds:
+          type: integer
+          default: 3600
+
+    ComputeJob:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        output:
+          type: string
+        logs:
+          type: string
+        duration_seconds:
+          type: integer
+        cost:
+          type: string
+
+    UsageStats:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            totalRequests:
+              type: integer
+            totalSpent:
+              type: string
+            averageCost:
+              type: string
+            currency:
+              type: string
+        daily:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+              requests:
+                type: integer
+              amount:
+                type: string
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        amount:
+          type: string
+        serviceType:
+          type: string
+        model:
+          type: string
+        provider:
+          type: string
+        txHash:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    PaymentInfo:
+      type: object
+      properties:
+        price:
+          type: string
+        currency:
+          type: string
+        network:
+          type: string
+          example: movement-testnet
+        payTo:
+          type: string
+        accepts:
+          type: array
+          items:
+            type: string
+
+  responses:
+    PaymentRequired:
+      description: Payment required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PaymentInfo'
+
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string

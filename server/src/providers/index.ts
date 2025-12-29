@@ -1,6 +1,9 @@
 import { openaiProvider } from './openai.js';
 import { replicateProvider } from './replicate.js';
 import { mockComputeProvider } from './compute.js';
+import { createTogetherProvider } from './together.js';
+import { createGroqProvider } from './groq.js';
+import { config } from '../config/index.js';
 import type {
   Provider,
   ProviderInfo,
@@ -18,6 +21,20 @@ export * from './types.js';
 const providers: Map<string, Provider> = new Map([
   ['openai', openaiProvider],
 ]);
+
+// Initialize Together AI provider if API key is available
+const togetherProvider = createTogetherProvider(config.providers.togetherApiKey);
+if (togetherProvider) {
+  providers.set('together', togetherProvider);
+  console.log('[Providers] Registered: Together AI');
+}
+
+// Initialize Groq provider if API key is available
+const groqProvider = createGroqProvider(config.providers.groqApiKey);
+if (groqProvider) {
+  providers.set('groq', groqProvider);
+  console.log('[Providers] Registered: Groq');
+}
 
 // Image provider registry
 const imageProviders: Map<string, ImageProvider> = new Map([

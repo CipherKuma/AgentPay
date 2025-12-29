@@ -1,24 +1,17 @@
 FROM node:20-alpine
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl
-
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
 # Install dependencies
+COPY package*.json ./
 RUN npm ci --only=production
 
-# Copy source code
+# Copy source
 COPY . .
 
 # Build TypeScript
 RUN npm run build
 
-# Expose port
+# Run
 EXPOSE 4402
-
-# Start server
-CMD ["npm", "start"]
+CMD ["node", "dist/index.js"]
