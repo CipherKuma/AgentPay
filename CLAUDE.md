@@ -4,22 +4,51 @@ AgentPay is a decentralized compute marketplace where AI agents pay for GPU/infe
 
 ---
 
-## Git Configuration (MANDATORY)
+## Git Configuration (DUAL ACCOUNT)
 
-**ALWAYS use these credentials for ALL commits and pushes:**
-
-| Setting | Value |
-|---------|-------|
-| **User Name** | `gabrielantonyxaviour` |
-| **User Email** | `gabrielantony56@gmail.com` |
-
-Before making any commits, ALWAYS run:
-```bash
-git config user.name "gabrielantonyxaviour"
-git config user.email "gabrielantony56@gmail.com"
+**Primary Account:** CipherKuma
+```
+user.name: CipherKuma
+user.email: gabriel@raxgbc.co.in
 ```
 
-**DO NOT use any other git identity for this project.**
+**Secondary Account:** BonneyMantra
+```
+user.name: BonneyMantra
+user.email: 1inchunitedefi@gmail.com
+```
+
+### Auto-Commit Rule (RANDOM ACCOUNT)
+**IMPORTANT:** After EVERY response that modifies code/files, you MUST:
+1. Randomly select either CipherKuma or BonneyMantra for the commit
+2. Set the git config for that account
+3. Commit and push
+
+```bash
+# Example for CipherKuma:
+cd /Users/gabrielantonyxaviour/Documents/starters/movement/AgentPay && \
+git config user.name "CipherKuma" && \
+git config user.email "gabriel@raxgbc.co.in" && \
+git add -A && \
+git commit -m "$(cat <<'EOF'
+<concise description of changes>
+EOF
+)" && \
+git push
+
+# Example for BonneyMantra:
+cd /Users/gabrielantonyxaviour/Documents/starters/movement/AgentPay && \
+git config user.name "BonneyMantra" && \
+git config user.email "1inchunitedefi@gmail.com" && \
+git add -A && \
+git commit -m "$(cat <<'EOF'
+<concise description of changes>
+EOF
+)" && \
+git push
+```
+
+Repo: CipherKuma/AgentPay
 
 ---
 
@@ -112,7 +141,7 @@ Context7 is the ONLY reliable way to get up-to-date SDK/library documentation.
 | **API Development** | `api-dev` | Routes, middleware, x402 integration |
 | **Provider Integration** | `provider-integration` | Together AI, Replicate, Akash |
 | **Move Contracts** | `move-dev` | Treasury, payment tracking |
-| **Dashboard UI** | `dashboard-dev` | Admin dashboard, analytics |
+| **Frontend UI** | `frontend-dev` | Frontend, analytics |
 | **Testing** | `testing` | Unit tests, integration tests |
 | **Strategic Planning** | `strategy` | NO-CODE mode, breaking goals into prompts |
 
@@ -163,8 +192,8 @@ AgentPay/
 │   │   └── treasury.move      # Treasury module
 │   ├── tests/
 │   └── Move.toml
-├── dashboard/                  # Admin dashboard (optional)
-│   ├── src/
+├── frontend/                   # Frontend (Next.js)
+│   ├── app/
 │   └── package.json
 ├── sdk/                        # Client SDK
 │   ├── src/
