@@ -1,27 +1,26 @@
 "use client";
 
 import { ReactNode } from "react";
-import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
-import { AptosConfig, Network } from "@aptos-labs/ts-sdk";
-import { PUBLIC_RPC } from "@/lib/shinami";
+import {
+  AptosWalletAdapterProvider,
+  NetworkName,
+} from "@aptos-labs/wallet-adapter-react";
 
 interface WalletProviderProps {
   children: ReactNode;
 }
 
 export function WalletProvider({ children }: WalletProviderProps) {
-  // Movement Testnet configuration (client-side uses public RPC)
-  const aptosConfig = new AptosConfig({
-    network: Network.CUSTOM,
-    fullnode: PUBLIC_RPC,
-  });
-
   return (
     <AptosWalletAdapterProvider
       autoConnect={true}
-      dappConfig={aptosConfig}
+      optInWallets={["Petra", "Nightly", "Pontem Wallet", "Martian"]}
+      dappConfig={{
+        network: NetworkName.Testnet,
+        aptosApiKeys: {},
+      }}
       onError={(error) => {
-        console.error("Wallet error:", JSON.stringify(error, null, 2));
+        console.error("Wallet error:", error);
       }}
     >
       {children}
