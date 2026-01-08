@@ -183,7 +183,7 @@ AI Agent → AgentPay API → 402 Payment Required → Sign & Pay → Get Comput
 
 ```bash
 # Without payment → 402
-curl -X POST https://api.agentpay.xyz/v1/inference \
+curl -X POST http://localhost:4402/v1/inference \
   -H "Content-Type: application/json" \
   -d '{"model":"llama-3.1-8b-instant","messages":[{"role":"user","content":"Hello"}]}'
 
@@ -200,7 +200,7 @@ curl -X POST https://api.agentpay.xyz/v1/inference \
 }
 
 # With payment → Success
-curl -X POST https://api.agentpay.xyz/v1/inference \
+curl -X POST http://localhost:4402/v1/inference \
   -H "Content-Type: application/json" \
   -H "X-PAYMENT: <signed-payment-header>" \
   -d '{"model":"llama-3.1-8b-instant","messages":[{"role":"user","content":"Hello"}]}'
@@ -221,7 +221,7 @@ from agentpay import AgentPayClient
 from agentpay.models import InferenceRequest, Message
 
 client = AgentPayClient(
-    endpoint="https://api.agentpay.xyz",
+    endpoint="http://localhost:4402",
     private_key="0x...",  # Movement wallet
     auto_pay=True         # Auto-handle 402 responses
 )
@@ -434,49 +434,6 @@ Example (Llama 3.1 8B):
 3. **Movement Advantage** — Leveraging sub-second finality for micropayments
 4. **First Mover** — No direct competitors in crypto-native compute brokerage
 5. **Clear Business Model** — 15% margin on every transaction
-
----
-
-## Demo
-
-### Live Endpoints
-- **Server:** https://api.agentpay.xyz
-- **Dashboard:** https://agentpay.xyz
-- **API Docs:** https://api.agentpay.xyz/docs
-
-### Test Locally
-```bash
-# Clone
-git clone https://github.com/CipherKuma/AgentPay.git
-cd AgentPay
-
-# Configure
-cp server/.env.example server/.env
-# Edit .env with your credentials
-
-# Run
-docker-compose up --build
-
-# Test
-curl http://localhost:4402/health
-```
-
----
-
-## Links
-
-| Resource | URL |
-|----------|-----|
-| GitHub | https://github.com/CipherKuma/AgentPay |
-| Demo Video | [Coming Soon] |
-| Pitch Deck | [Coming Soon] |
-| API Docs | https://api.agentpay.xyz/docs |
-
----
-
-## Team
-
-Built for the Movement Hackathon.
 
 ---
 
