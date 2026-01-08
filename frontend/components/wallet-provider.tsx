@@ -3,23 +3,17 @@
 import { ReactNode } from "react";
 import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 import { AptosConfig, Network } from "@aptos-labs/ts-sdk";
-import { getShinamiRpcUrl, isShinamiConfigured } from "@/lib/shinami";
+import { PUBLIC_RPC } from "@/lib/shinami";
 
 interface WalletProviderProps {
   children: ReactNode;
 }
 
 export function WalletProvider({ children }: WalletProviderProps) {
-  // Movement Testnet configuration with Shinami Node Service
-  const rpcUrl = getShinamiRpcUrl();
-
-  if (isShinamiConfigured()) {
-    console.log("[Wallet] Using Shinami Node Service for Movement Testnet");
-  }
-
+  // Movement Testnet configuration (client-side uses public RPC)
   const aptosConfig = new AptosConfig({
     network: Network.CUSTOM,
-    fullnode: rpcUrl,
+    fullnode: PUBLIC_RPC,
   });
 
   return (

@@ -9,7 +9,7 @@ import {
 } from "@aptos-labs/ts-sdk";
 import { buildAptosLikePaymentHeader } from "x402plus";
 import { runInference, parseSSEStream } from "@/lib/api";
-import { getShinamiRpcUrl } from "@/lib/shinami";
+import { PUBLIC_RPC } from "@/lib/shinami";
 
 interface PaymentRequirements {
   scheme: "exact";
@@ -34,7 +34,7 @@ export function useX402Payment() {
   const payForAccess = async (paymentRequirements: PaymentRequirements): Promise<string> => {
     if (!account) throw new Error("Wallet not connected");
 
-    const aptos = new Aptos(new AptosConfig({ network: Network.CUSTOM, fullnode: getShinamiRpcUrl() }));
+    const aptos = new Aptos(new AptosConfig({ network: Network.CUSTOM, fullnode: PUBLIC_RPC }));
     const tx = await aptos.transaction.build.simple({
       sender: account.address,
       data: {

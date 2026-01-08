@@ -1,46 +1,31 @@
 /**
  * Shinami Node Service configuration for Movement Testnet
  *
- * Shinami provides reliable RPC endpoints with rate limiting and analytics.
- * For Movement Testnet, we use the Shinami Node Service API.
- *
- * Environment variable: NEXT_PUBLIC_SHINAMI_KEY
+ * SHINAMI_KEY is server-side only (not exposed to client).
+ * Client-side code uses public RPC.
  */
 
-// Movement Testnet RPC via Shinami Node Service
-const SHINAMI_KEY = process.env.NEXT_PUBLIC_SHINAMI_KEY;
-
-// Fallback public RPC (less reliable, no rate limiting)
-const FALLBACK_RPC = 'https://aptos.testnet.bardock.movementlabs.xyz/v1';
+// Public Movement Testnet RPC (for client-side)
+export const PUBLIC_RPC = 'https://aptos.testnet.bardock.movementlabs.xyz/v1';
 
 /**
- * Get the Shinami Node Service RPC URL for Movement Testnet
+ * Get RPC URL for server-side use (API routes)
+ * Uses Shinami if SHINAMI_KEY is set, otherwise public RPC
  */
-export function getShinamiRpcUrl(): string {
-  if (!SHINAMI_KEY) {
-    console.warn(
-      '[Shinami] NEXT_PUBLIC_SHINAMI_KEY not set, using fallback RPC'
-    );
-    return FALLBACK_RPC;
+export function getServerRpcUrl(): string {
+  const shinamiKey = process.env.SHINAMI_KEY;
+  if (shinamiKey) {
+    return `https://api.shinami.com/aptos/node/v1/${shinamiKey}`;
   }
-
-  // Shinami Movement Testnet endpoint format
-  return `https://api.shinami.com/aptos/node/v1/${SHINAMI_KEY}`;
+  return PUBLIC_RPC;
 }
 
 /**
- * Movement network configuration
+ * Movement Testnet configuration
  */
 export const MOVEMENT_CONFIG = {
   network: 'movement-testnet' as const,
-  chainId: '177', // Movement Testnet chain ID
-  rpcUrl: getShinamiRpcUrl(),
+  chainId: '177',
+  publicRpc: PUBLIC_RPC,
   explorerUrl: 'https://explorer.movementnetwork.xyz',
 } as const;
-
-/**
- * Check if Shinami is properly configured
- */
-export function isShinamiConfigured(): boolean {
-  return !!SHINAMI_KEY;
-}
