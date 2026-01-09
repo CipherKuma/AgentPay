@@ -6,7 +6,7 @@
  */
 
 // Public Movement Testnet RPC (for client-side)
-export const PUBLIC_RPC = 'https://aptos.testnet.bardock.movementlabs.xyz/v1';
+export const PUBLIC_RPC = 'https://testnet.movementnetwork.xyz/v1';
 
 /**
  * Get RPC URL for server-side use (API routes)

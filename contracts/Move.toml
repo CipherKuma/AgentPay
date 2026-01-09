@@ -3,7 +3,10 @@ name = "AgentPay"
 version = "0.1.0"
 
 [addresses]
-AgentPay = "_"
+AgentPay = "0xe00efe7a91236e0dee4b9479fe0677bf6c5f2cecc6f628ffd8d81cc6e617e386"
+
+[dev-addresses]
+AgentPay = "0xcafe"
 
 [dependencies]
 AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "aptos-release-v1.17" }
